@@ -215,6 +215,19 @@ function splitName(full: string) {
   };
 }
 
+/**
+ * Normalize US phone numbers to E.164 (+1XXXXXXXXXX).
+ * Accepts: "9843637221", "(984) 363-7221", "+1 984-363-7221", "1984363722", "+19843637221".
+ * Throws if it can't produce a valid 10-digit US number.
+ */
+function normalizePhoneUS(input: string): string {
+  const digits = input.replace(/\D/g, "");
+  if (digits.length === 10) return `+1${digits}`;
+  if (digits.length === 11 && digits.startsWith("1")) return `+${digits}`;
+  if (input.trim().startsWith("+") && digits.length >= 10) return `+${digits}`;
+  throw new Error(`invalid phone (got ${digits.length} digits): ${input}`);
+}
+
 interface OnboardResult {
   mover_id: string;
   coassemble_id: number;
@@ -226,6 +239,7 @@ interface OnboardResult {
 
 async function onboard(payload: Payload): Promise<OnboardResult> {
   const email = payload.email.toLowerCase().trim();
+  const phone = normalizePhoneUS(payload.phone);
   const { firstname, lastname } = splitName(payload.name);
 
   // Existing audit row (if any)
@@ -268,7 +282,7 @@ async function onboard(payload: Payload): Promise<OnboardResult> {
       .update({
         coassemble_id: String(coassembleId),
         name: payload.name,
-        phone: payload.phone,
+        phone,
         status: payload.status ?? "onboarding",
       })
       .eq("id", existing.id);
@@ -278,7 +292,7 @@ async function onboard(payload: Payload): Promise<OnboardResult> {
       .insert({
         name: payload.name,
         email,
-        phone: payload.phone,
+        phone,
         status: payload.status ?? "onboarding",
         coassemble_id: String(coassembleId),
       })
@@ -294,7 +308,7 @@ async function onboard(payload: Payload): Promise<OnboardResult> {
   // Notifications in parallel
   const [emailRes, smsRes] = await Promise.all([
     sendEmail(payload.email, "Welcome to Moving Muscle — Get started", emailTemplate(firstname)),
-    sendSMS(payload.phone, smsTemplate(firstname)),
+    sendSMS(phone, smsTemplate(firstname)),
   ]);
 
   return {
