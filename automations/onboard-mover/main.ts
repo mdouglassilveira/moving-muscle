@@ -109,18 +109,25 @@ async function createMember(input: {
 
 async function enrol(userId: number, courseId: number) {
   // Coassemble's POST /enrolments is NOT idempotent — duplicate POSTs create duplicate
-  // "add" events. Pre-check by listing user enrolments and looking for an existing add.
+  // "add" events. The enrolment log is event-sourced: a user is currently enrolled iff
+  // the MOST RECENT add/remove event for the course is an "add".
   const list = await fetch(`${COA_BASE}/enrolments?user=${userId}`, { headers: coaHeaders() });
   if (list.ok) {
     const events = (await list.json()) as Array<{
       action: string;
       dtype: string;
+      date: number;
       course?: { id: number };
     }>;
-    const already = events.some(
-      (e) => e.action === "add" && e.dtype === "course" && e.course?.id === courseId,
-    );
-    if (already) return { alreadyEnrolled: true };
+    const courseEvents = events
+      .filter(
+        (e) =>
+          e.dtype === "course" &&
+          e.course?.id === courseId &&
+          (e.action === "add" || e.action === "remove"),
+      )
+      .sort((a, b) => b.date - a.date);
+    if (courseEvents[0]?.action === "add") return { alreadyEnrolled: true };
   }
 
   const fd = new FormData();
