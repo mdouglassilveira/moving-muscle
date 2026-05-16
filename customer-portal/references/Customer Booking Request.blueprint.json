@@ -1,0 +1,702 @@
+{
+    "name": "Customer Booking Request",
+    "flow": [
+        {
+            "id": 1,
+            "module": "gateway:CustomWebHook",
+            "version": 1,
+            "parameters": {
+                "hook": 1854271,
+                "maxResults": 1
+            },
+            "mapper": {},
+            "metadata": {
+                "designer": {
+                    "x": -577,
+                    "y": -48
+                },
+                "restore": {
+                    "parameters": {
+                        "hook": {
+                            "data": {
+                                "editable": "true"
+                            },
+                            "label": "Customer Request (From Customer Portal)"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "hook",
+                        "type": "hook:gateway-webhook",
+                        "label": "Webhook",
+                        "required": true
+                    },
+                    {
+                        "name": "maxResults",
+                        "type": "number",
+                        "label": "Maximum number of results"
+                    }
+                ],
+                "interface": [
+                    {
+                        "name": "service_type",
+                        "type": "text"
+                    },
+                    {
+                        "name": "helpers",
+                        "type": "number"
+                    },
+                    {
+                        "name": "hours",
+                        "type": "number"
+                    },
+                    {
+                        "name": "total_price",
+                        "type": "number"
+                    },
+                    {
+                        "name": "schedule",
+                        "spec": [
+                            {
+                                "name": "day",
+                                "type": "text"
+                            },
+                            {
+                                "name": "time_window",
+                                "type": "text"
+                            }
+                        ],
+                        "type": "collection"
+                    },
+                    {
+                        "name": "locations",
+                        "spec": {
+                            "spec": [
+                                {
+                                    "name": "type",
+                                    "type": "text"
+                                },
+                                {
+                                    "name": "address",
+                                    "type": "text"
+                                },
+                                {
+                                    "name": "city",
+                                    "type": "text"
+                                },
+                                {
+                                    "name": "state",
+                                    "type": "text"
+                                },
+                                {
+                                    "name": "city_code",
+                                    "type": "text"
+                                },
+                                {
+                                    "name": "lat",
+                                    "type": "number"
+                                },
+                                {
+                                    "name": "lng",
+                                    "type": "number"
+                                }
+                            ],
+                            "type": "collection"
+                        },
+                        "type": "array"
+                    },
+                    {
+                        "name": "customer",
+                        "spec": [
+                            {
+                                "name": "name",
+                                "type": "text"
+                            },
+                            {
+                                "name": "email",
+                                "type": "text"
+                            },
+                            {
+                                "name": "phone",
+                                "type": "text"
+                            }
+                        ],
+                        "type": "collection"
+                    },
+                    {
+                        "name": "notes",
+                        "type": "text"
+                    },
+                    {
+                        "name": "time_flexibility_notes",
+                        "type": "text"
+                    },
+                    {
+                        "name": "property_type",
+                        "type": "text"
+                    },
+                    {
+                        "name": "truck_size",
+                        "type": "text"
+                    },
+                    {
+                        "name": "helpers_action",
+                        "type": "text"
+                    },
+                    {
+                        "name": "admin_summary",
+                        "type": "text"
+                    },
+                    {
+                        "name": "metadata",
+                        "spec": [
+                            {
+                                "name": "source",
+                                "type": "text"
+                            },
+                            {
+                                "name": "timestamp",
+                                "type": "text"
+                            }
+                        ],
+                        "type": "collection"
+                    }
+                ]
+            }
+        },
+        {
+            "id": 3,
+            "module": "http:MakeRequest",
+            "version": 4,
+            "parameters": {
+                "tlsType": "",
+                "proxyKeychain": "",
+                "authenticationType": "noAuth"
+            },
+            "mapper": {
+                "url": "https://api.glideapp.io/api/function/mutateTables",
+                "method": "post",
+                "headers": [
+                    {
+                        "name": "Content-Type",
+                        "value": "application/json"
+                    },
+                    {
+                        "name": "Authorization",
+                        "value": "Bearer 118eaee9-0912-4c1a-a3d7-9e0d37ac1174"
+                    }
+                ],
+                "contentType": "json",
+                "inputMethod": "jsonString",
+                "shareCookies": false,
+                "parseResponse": true,
+                "allowRedirects": true,
+                "stopOnHttpError": true,
+                "jsonStringBodyContent": "{\r\n  \"appID\": \"jeREtmUweqaIJ1Ozr5m2\",\r\n  \"mutations\": [\r\n    {\r\n      \"kind\": \"add-row-to-table\",\r\n      \"tableName\": \"native-table-mVdR6ZqxjFevX1Wk4acu\",\r\n      \"columnValues\": {\r\n        \"QcCtX\": \"{{1.service_type}}\",\r\n        \"xS3kc\": \"{{1.helpers}}\",\r\n        \"nMr2i\": \"{{1.hours}}\",\r\n        \"FauqA\": \"{{1.total_price}}\",\r\n        \"ZUXFU\": \"{{1.schedule.day}}\",\r\n        \"4l0EV\": \"{{1.schedule.time_window}}\",\r\n        \"IAkbI\": \"{{1.time_flexibility_notes}}\",\r\n        \"mOCJI\": \"{{1.locations[1].address}}\",\n        \"8oziB\": \"{{1.locations[1].city_code}}\",\r\n        \"KPXOu\": \"{{1.locations[1].city}}\",\r\n        \"CTzey\": \"{{if(length(1.locations) = 2; 1.locations[2].city_code; null)}}\",\r\n        \"JUKtR\": \"{{if(length(1.locations) = 2; 1.locations[2].address; null)}}\",\n        \"s0p30\": \"{{if(length(1.locations) = 2; 1.locations[2].city; null)}}\",\r\n        \"WK2Ae\": \"{{1.customer.name}}\",\r\n        \"4Tmbc\": \"{{1.customer.email}}\",\r\n        \"zv1lC\": \"{{1.customer.phone}}\",\r\n        \"IMauS\": \"{{1.notes}}\",\n         \"90fC9\": \"{{now}}\",\n         \"0ROiQ\": \"{{1.truck_size}}\",\n         \"YyCoD\": \"{{1.property_type}}\"\n      }\r\n    }\r\n  ]\r\n}",
+                "requestCompressedContent": true
+            },
+            "metadata": {
+                "designer": {
+                    "x": -208,
+                    "y": -41
+                },
+                "restore": {
+                    "expect": {
+                        "method": {
+                            "mode": "chose",
+                            "label": "POST"
+                        },
+                        "headers": {
+                            "mode": "chose",
+                            "items": [
+                                null,
+                                null
+                            ]
+                        },
+                        "contentType": {
+                            "label": "application/jsonEnter data in the JSON format, as a string or using a data structure."
+                        },
+                        "inputMethod": {
+                            "label": "JSON stringEnter the JSON body as a raw text string. If values contain JSON reserved characters, you must escape them manually."
+                        },
+                        "shareCookies": {
+                            "mode": "chose"
+                        },
+                        "parseResponse": {
+                            "mode": "chose"
+                        },
+                        "allowRedirects": {
+                            "mode": "chose"
+                        },
+                        "paginationType": {
+                            "label": "Empty"
+                        },
+                        "queryParameters": {
+                            "mode": "chose"
+                        },
+                        "stopOnHttpError": {
+                            "mode": "chose"
+                        },
+                        "requestCompressedContent": {
+                            "mode": "chose"
+                        }
+                    },
+                    "parameters": {
+                        "tlsType": {
+                            "label": "Empty"
+                        },
+                        "proxyKeychain": {
+                            "label": "Choose a key"
+                        },
+                        "authenticationType": {
+                            "label": "No authenticationUse when no credentials are required for the request."
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "authenticationType",
+                        "type": "select",
+                        "label": "Authentication type",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "noAuth",
+                                "apiKey",
+                                "basicAuth",
+                                "oAuth"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "tlsType",
+                        "type": "select",
+                        "label": "Transport layer security (TLS)",
+                        "validate": {
+                            "enum": [
+                                "mTls",
+                                "tls"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "proxyKeychain",
+                        "type": "keychain:proxy",
+                        "label": "Proxy"
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "url",
+                        "type": "url",
+                        "label": "URL",
+                        "required": true
+                    },
+                    {
+                        "name": "method",
+                        "type": "select",
+                        "label": "Method",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "get",
+                                "head",
+                                "post",
+                                "put",
+                                "patch",
+                                "delete",
+                                "options"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "headers",
+                        "spec": {
+                            "name": "value",
+                            "spec": [
+                                {
+                                    "name": "name",
+                                    "type": "text",
+                                    "label": "Name",
+                                    "required": true,
+                                    "validate": {
+                                        "pattern": "^[-!#$%&'*+.^_`|~0-9A-Za-z]+$"
+                                    }
+                                },
+                                {
+                                    "name": "value",
+                                    "type": "text",
+                                    "label": "Value"
+                                }
+                            ],
+                            "type": "collection",
+                            "label": "Header"
+                        },
+                        "type": "array",
+                        "label": "Headers"
+                    },
+                    {
+                        "name": "queryParameters",
+                        "spec": {
+                            "name": "value",
+                            "spec": [
+                                {
+                                    "name": "name",
+                                    "type": "text",
+                                    "label": "Name",
+                                    "required": true
+                                },
+                                {
+                                    "name": "value",
+                                    "type": "text",
+                                    "label": "Value"
+                                }
+                            ],
+                            "type": "collection",
+                            "label": "Parameter"
+                        },
+                        "type": "array",
+                        "label": "Query parameters"
+                    },
+                    {
+                        "name": "contentType",
+                        "type": "select",
+                        "label": "Body content type",
+                        "validate": {
+                            "enum": [
+                                "json",
+                                "multipart",
+                                "urlEncoded",
+                                "custom"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "parseResponse",
+                        "type": "boolean",
+                        "label": "Parse response",
+                        "required": true
+                    },
+                    {
+                        "name": "stopOnHttpError",
+                        "type": "boolean",
+                        "label": "Return error if HTTP request fails",
+                        "required": true
+                    },
+                    {
+                        "name": "timeout",
+                        "type": "uinteger",
+                        "label": "Timeout",
+                        "validate": {
+                            "max": 300,
+                            "min": 1
+                        }
+                    },
+                    {
+                        "name": "allowRedirects",
+                        "type": "boolean",
+                        "label": "Allow redirects",
+                        "required": true
+                    },
+                    {
+                        "name": "shareCookies",
+                        "type": "boolean",
+                        "label": "Share cookies with other HTTP modules",
+                        "required": true
+                    },
+                    {
+                        "name": "requestCompressedContent",
+                        "type": "boolean",
+                        "label": "Request compressed content",
+                        "required": true
+                    },
+                    {
+                        "name": "inputMethod",
+                        "type": "select",
+                        "label": "Body input method",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "dataStructure",
+                                "jsonString"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "jsonStringBodyContent",
+                        "type": "text",
+                        "label": "Body content",
+                        "required": true
+                    },
+                    {
+                        "name": "paginationType",
+                        "type": "select",
+                        "label": "Pagination type",
+                        "validate": {
+                            "enum": [
+                                "offsetBased",
+                                "pageBased",
+                                "urlBased",
+                                "tokenBased"
+                            ]
+                        }
+                    }
+                ],
+                "interface": [
+                    {
+                        "name": "data",
+                        "type": "any",
+                        "label": "Data"
+                    },
+                    {
+                        "name": "statusCode",
+                        "type": "number",
+                        "label": "Status Code"
+                    },
+                    {
+                        "name": "headers",
+                        "spec": [
+                            {
+                                "name": "content-length",
+                                "type": "text",
+                                "label": "Content-Length"
+                            },
+                            {
+                                "name": "content-encoding",
+                                "type": "text",
+                                "label": "Content-Encoding"
+                            },
+                            {
+                                "name": "content-type",
+                                "type": "text",
+                                "label": "Content-Type"
+                            },
+                            {
+                                "name": "server",
+                                "type": "text",
+                                "label": "Server"
+                            },
+                            {
+                                "name": "cache-control",
+                                "type": "text",
+                                "label": "Cache-Control"
+                            },
+                            {
+                                "name": "set-cookie",
+                                "spec": {
+                                    "type": "text"
+                                },
+                                "type": "array",
+                                "label": "Set-Cookie"
+                            }
+                        ],
+                        "type": "collection",
+                        "label": "Headers"
+                    }
+                ]
+            }
+        },
+        {
+            "id": 9,
+            "module": "google-email:sendAnEmail",
+            "version": 4,
+            "parameters": {
+                "__IMTCONN__": 7433257
+            },
+            "mapper": {
+                "to": [
+                    "{{1.customer.email}}"
+                ],
+                "content": "<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head>\r\n  <meta charset=\"UTF-8\">\r\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n  <title>Booking Request Received - Moving Muscle</title>\r\n  <!--[if mso]>\r\n  <noscript>\r\n    <xml>\r\n      <o:OfficeDocumentSettings>\r\n        <o:PixelsPerInch>96</o:PixelsPerInch>\r\n      </o:OfficeDocumentSettings>\r\n    </xml>\r\n  </noscript>\r\n  <![endif]-->\r\n</head>\r\n<body style=\"margin: 0; padding: 0; background-color: #f4f6f8; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased;\">\r\n\r\n  <!-- Outer wrapper -->\r\n  <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"background-color: #f4f6f8;\">\r\n    <tr>\r\n      <td align=\"center\" style=\"padding: 40px 16px;\">\r\n\r\n        <!-- Email container -->\r\n        <table role=\"presentation\" width=\"600\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06);\">\r\n\r\n          <!-- Logo Header -->\r\n          <tr>\r\n            <td align=\"center\" style=\"padding: 36px 40px 24px 40px;\">\r\n              <!-- Replace src with your hosted logo URL -->\r\n              <img src=\"https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jeREtmUweqaIJ1Ozr5m2/pub/d9C8hWggfD2z3DhwC39R.png\" alt=\"Moving Muscle\" width=\"180\" style=\"display: block; max-width: 180px; height: auto;\" />\r\n            </td>\r\n          </tr>\r\n\r\n          <!-- Request ID Badge -->\r\n          <tr>\r\n            <td align=\"center\" style=\"padding: 0 40px 8px 40px;\">\r\n              <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\r\n                <tr>\r\n                  <td style=\"background-color: #e8f7f5; border-radius: 20px; padding: 6px 18px;\">\r\n                    <span style=\"font-size: 13px; font-weight: 600; color: #2bbcb3; letter-spacing: 0.5px;\">REQUEST #{{upper(substring(3.data[1].rowID; length(3.data[1].rowID) - 5; length(3.data[1].rowID)))}}</span>\r\n                  </td>\r\n                </tr>\r\n              </table>\r\n            </td>\r\n          </tr>\r\n\r\n          <!-- Main Heading -->\r\n          <tr>\r\n            <td align=\"center\" style=\"padding: 12px 40px 8px 40px;\">\r\n              <h1 style=\"margin: 0; font-size: 26px; font-weight: 700; color: #1a2332; line-height: 1.3;\">Booking Request Received</h1>\r\n            </td>\r\n          </tr>\r\n\r\n          <!-- Subheading -->\r\n          <tr>\r\n            <td align=\"center\" style=\"padding: 0 40px 32px 40px;\">\r\n              <p style=\"margin: 0; font-size: 15px; color: #6b7a8d; line-height: 1.5;\">We've received your request and our team is on it. This is <strong style=\"color: #1a2332;\">not yet a confirmed booking</strong> — we'll be in touch shortly to finalize the details.</p>\r\n            </td>\r\n          </tr>\r\n\r\n          <!-- Divider -->\r\n          <tr>\r\n            <td style=\"padding: 0 40px;\">\r\n              <div style=\"border-top: 1px solid #e9edf1;\"></div>\r\n            </td>\r\n          </tr>\r\n\r\n          <!-- Request Details Section -->\r\n          <tr>\r\n            <td style=\"padding: 28px 40px 8px 40px;\">\r\n              <h2 style=\"margin: 0; font-size: 14px; font-weight: 700; color: #1a2332; text-transform: uppercase; letter-spacing: 0.8px;\">Your Request Details</h2>\r\n            </td>\r\n          </tr>\r\n\r\n          <!-- Details Table -->\r\n          <tr>\r\n            <td style=\"padding: 16px 40px 28px 40px;\">\r\n              <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"background-color: #f8f9fb; border-radius: 10px;\">\r\n                \r\n                <!-- Name -->\r\n                <tr>\r\n                  <td style=\"padding: 16px 20px 0 20px;\">\r\n                    <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\r\n                      <tr>\r\n                        <td style=\"font-size: 12px; font-weight: 600; color: #8d99a8; text-transform: uppercase; letter-spacing: 0.5px; padding-bottom: 4px;\">Name</td>\r\n                      </tr>\r\n                      <tr>\r\n                        <td style=\"font-size: 15px; color: #1a2332; font-weight: 500;\"> {{1.customer.name}} </td>\r\n                      </tr>\r\n                    </table>\r\n                  </td>\r\n                </tr>\r\n\r\n                <!-- Divider inside card -->\r\n                <tr>\r\n                  <td style=\"padding: 12px 20px 0 20px;\">\r\n                    <div style=\"border-top: 1px solid #e3e7ec;\"></div>\r\n                  </td>\r\n                </tr>\r\n\r\n                <!-- Date & Time -->\r\n                <tr>\r\n                  <td style=\"padding: 12px 20px 0 20px;\">\r\n                    <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\r\n                      <tr>\r\n                        <td style=\"font-size: 12px; font-weight: 600; color: #8d99a8; text-transform: uppercase; letter-spacing: 0.5px; padding-bottom: 4px;\">Requested Date & Time</td>\r\n                      </tr>\r\n                      <tr>\r\n                        <td style=\"font-size: 15px; color: #1a2332; font-weight: 500;\">{{formatDate(now; \"MMMM D, YYYY\"; \"America/New_York\")}} at {{formatDate(now; \"h:mm A\"; \"America/New_York\")}}</td>\r\n                      </tr>\r\n                    </table>\r\n                  </td>\r\n                </tr>\r\n\r\n                <!-- Divider -->\r\n                <tr>\r\n                  <td style=\"padding: 12px 20px 0 20px;\">\r\n                    <div style=\"border-top: 1px solid #e3e7ec;\"></div>\r\n                  </td>\r\n                </tr>\r\n\r\n                <!-- Address -->\r\n                <tr>\r\n                  <td style=\"padding: 12px 20px 0 20px;\">\r\n                    <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\r\n                      <tr>\r\n                        <td style=\"font-size: 12px; font-weight: 600; color: #8d99a8; text-transform: uppercase; letter-spacing: 0.5px; padding-bottom: 4px;\">Address</td>\r\n                      </tr>\r\n                      <tr>\r\n                        <td style=\"font-size: 15px; color: #1a2332; font-weight: 500;\"> {{1.locations[1].address}} </td>\r\n                      </tr>\r\n                    </table>\r\n                  </td>\r\n                </tr>\r\n\r\n                <!-- Divider -->\r\n                <tr>\r\n                  <td style=\"padding: 12px 20px 0 20px;\">\r\n                    <div style=\"border-top: 1px solid #e3e7ec;\"></div>\r\n                  </td>\r\n                </tr>\r\n\r\n                <!-- Movers & Hours -->\r\n                <tr>\r\n                  <td style=\"padding: 12px 20px 0 20px;\">\r\n                    <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\r\n                      <tr>\r\n                        <td width=\"50%\" valign=\"top\">\r\n                          <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\r\n                            <tr>\r\n                              <td style=\"font-size: 12px; font-weight: 600; color: #8d99a8; text-transform: uppercase; letter-spacing: 0.5px; padding-bottom: 4px;\">Movers</td>\r\n                            </tr>\r\n                            <tr>\r\n                              <td style=\"font-size: 15px; color: #1a2332; font-weight: 500;\"> {{1.helpers}} </td>\r\n                            </tr>\r\n                          </table>\r\n                        </td>\r\n                        <td width=\"50%\" valign=\"top\">\r\n                          <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\r\n                            <tr>\r\n                              <td style=\"font-size: 12px; font-weight: 600; color: #8d99a8; text-transform: uppercase; letter-spacing: 0.5px; padding-bottom: 4px;\">Hours</td>\r\n                            </tr>\r\n                            <tr>\r\n                              <td style=\"font-size: 15px; color: #1a2332; font-weight: 500;\"> {{1.hours}} </td>\r\n                            </tr>\r\n                          </table>\r\n                        </td>\r\n                      </tr>\r\n                    </table>\r\n                  </td>\r\n                </tr>\r\n\r\n                <!-- Divider -->\r\n                <tr>\r\n                  <td style=\"padding: 12px 20px 0 20px;\">\r\n                    <div style=\"border-top: 1px solid #e3e7ec;\"></div>\r\n                  </td>\r\n                </tr>\r\n\r\n                <!-- Estimated Price -->\r\n                <tr>\r\n                  <td style=\"padding: 12px 20px 16px 20px;\">\r\n                    <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\r\n                      <tr>\r\n                        <td style=\"font-size: 12px; font-weight: 600; color: #8d99a8; text-transform: uppercase; letter-spacing: 0.5px; padding-bottom: 4px;\">Estimated Price</td>\r\n                      </tr>\r\n                      <tr>\r\n                        <td style=\"font-size: 20px; color: #3cd3d6; font-weight: 700;\"> ${{1.total_price}} </td>\r\n                      </tr>\r\n                    </table>\r\n                  </td>\r\n                </tr>\r\n\r\n              </table>\r\n            </td>\r\n          </tr>\r\n\r\n          <!-- Divider -->\r\n          <tr>\r\n            <td style=\"padding: 0 40px;\">\r\n              <div style=\"border-top: 1px solid #e9edf1;\"></div>\r\n            </td>\r\n          </tr>\r\n\r\n          <!-- Next Steps Section -->\r\n          <tr>\r\n            <td style=\"padding: 28px 40px 8px 40px;\">\r\n              <h2 style=\"margin: 0; font-size: 14px; font-weight: 700; color: #1a2332; text-transform: uppercase; letter-spacing: 0.8px;\">Next Steps</h2>\r\n            </td>\r\n          </tr>\r\n\r\n          <!-- Step 1 - Completed -->\r\n          <tr>\r\n            <td style=\"padding: 16px 40px 0 40px;\">\r\n              <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\r\n                <tr>\r\n                  <td width=\"40\" valign=\"top\" style=\"padding-top: 2px;\">\r\n                    <!-- Green checkmark circle -->\r\n                    <div style=\"width: 32px; height: 32px; background-color: #2bbcb3; border-radius: 8px; text-align: center; line-height: 32px; font-size: 16px; color: #ffffff;\">&#10003;</div>\r\n                  </td>\r\n                  <td style=\"padding-left: 12px;\">\r\n                    <p style=\"margin: 0; font-size: 14px; font-weight: 700; color: #2bbcb3;\">Request submitted</p>\r\n                    <p style=\"margin: 4px 0 0 0; font-size: 13px; color: #8d99a8; line-height: 1.4;\">We have your details and preferred time.</p>\r\n                  </td>\r\n                </tr>\r\n              </table>\r\n            </td>\r\n          </tr>\r\n\r\n          <!-- Connector line -->\r\n          <tr>\r\n            <td style=\"padding: 0 40px;\">\r\n              <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\r\n                <tr>\r\n                  <td width=\"40\" align=\"center\">\r\n                    <div style=\"width: 2px; height: 20px; background-color: #e3e7ec; margin: 0 auto;\"></div>\r\n                  </td>\r\n                  <td></td>\r\n                </tr>\r\n              </table>\r\n            </td>\r\n          </tr>\r\n\r\n          <!-- Step 2 - Up Next -->\r\n          <tr>\r\n            <td style=\"padding: 0 40px;\">\r\n              <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\r\n                <tr>\r\n                  <td width=\"40\" valign=\"top\" style=\"padding-top: 2px;\">\r\n                    <div style=\"width: 32px; height: 32px; background-color: #e8f7f5; border-radius: 8px; text-align: center; line-height: 32px; font-size: 15px; font-weight: 700; color: #2bbcb3;\">2</div>\r\n                  </td>\r\n                  <td style=\"padding-left: 12px;\">\r\n                    <p style=\"margin: 0; font-size: 14px; font-weight: 700; color: #1a2332;\">Searching for available movers</p>\r\n                    <p style=\"margin: 4px 0 0 0; font-size: 13px; color: #8d99a8; line-height: 1.4;\">We're matching you with movers in your area. You'll get text updates.</p>\r\n                  </td>\r\n                </tr>\r\n              </table>\r\n            </td>\r\n          </tr>\r\n\r\n          <!-- Connector line -->\r\n          <tr>\r\n            <td style=\"padding: 0 40px;\">\r\n              <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\r\n                <tr>\r\n                  <td width=\"40\" align=\"center\">\r\n                    <div style=\"width: 2px; height: 20px; background-color: #e3e7ec; margin: 0 auto;\"></div>\r\n                  </td>\r\n                  <td></td>\r\n                </tr>\r\n              </table>\r\n            </td>\r\n          </tr>\r\n\r\n          <!-- Step 3 - Up Next -->\r\n          <tr>\r\n            <td style=\"padding: 0 40px;\">\r\n              <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\r\n                <tr>\r\n                  <td width=\"40\" valign=\"top\" style=\"padding-top: 2px;\">\r\n                    <div style=\"width: 32px; height: 32px; background-color: #e8f7f5; border-radius: 8px; text-align: center; line-height: 32px; font-size: 15px; font-weight: 700; color: #2bbcb3;\">3</div>\r\n                  </td>\r\n                  <td style=\"padding-left: 12px;\">\r\n                    <p style=\"margin: 0; font-size: 14px; font-weight: 700; color: #1a2332;\">You'll hear from us within 1 hour</p>\r\n                    <p style=\"margin: 4px 0 0 0; font-size: 13px; color: #8d99a8; line-height: 1.4;\">Your moving concierge will call to confirm availability and finalize your booking.</p>\r\n                  </td>\r\n                </tr>\r\n              </table>\r\n            </td>\r\n          </tr>\r\n\r\n          <!-- Bottom padding after steps -->\r\n          <tr>\r\n            <td style=\"padding: 32px 40px 0 40px;\">\r\n              <div style=\"border-top: 1px solid #e9edf1;\"></div>\r\n            </td>\r\n          </tr>\r\n\r\n          <!-- Questions CTA -->\r\n          <tr>\r\n            <td align=\"center\" style=\"padding: 24px 40px 12px 40px;\">\r\n              <p style=\"margin: 0; font-size: 15px; color: #1a2332; font-weight: 600;\">Have questions?</p>\r\n            </td>\r\n          </tr>\r\n          <tr>\r\n            <td align=\"center\" style=\"padding: 0 40px 32px 40px;\">\r\n              <p style=\"margin: 0; font-size: 14px; color: #6b7a8d; line-height: 1.5;\">Call or text us at <a href=\"tel:9809203022\" style=\"color: #2bbcb3; text-decoration: none; font-weight: 600;\">(980) 920-3022</a></p>\r\n            </td>\r\n          </tr>\r\n\r\n          <!-- Footer -->\r\n          <tr>\r\n            <td style=\"background-color: #f8f9fb; padding: 24px 40px; border-top: 1px solid #e9edf1;\">\r\n              <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\r\n                <tr>\r\n                  <td align=\"center\">\r\n                    <p style=\"margin: 0; font-size: 12px; color: #8d99a8; line-height: 1.6;\">\r\n                      Moving Muscle &bull; Charlotte<br/>\r\n                      <a href=\"https://www.getmovingmuscle.com/\" style=\"color: #2bbcb3; text-decoration: none;\">getmovingmuscle.com/</a>\r\n                    </p>\r\n                  </td>\r\n                </tr>\r\n              </table>\r\n            </td>\r\n          </tr>\r\n\r\n        </table>\r\n        <!-- End email container -->\r\n\r\n      </td>\r\n    </tr>\r\n  </table>\r\n\r\n</body>\r\n</html>",
+                "subject": "Booking Request Received",
+                "bodyType": "rawHtml"
+            },
+            "metadata": {
+                "designer": {
+                    "x": 127,
+                    "y": -29
+                },
+                "restore": {
+                    "expect": {
+                        "cc": {
+                            "mode": "chose"
+                        },
+                        "to": {
+                            "mode": "chose",
+                            "items": [
+                                null
+                            ]
+                        },
+                        "bcc": {
+                            "mode": "chose"
+                        },
+                        "from": {
+                            "mode": "chose"
+                        },
+                        "bodyType": {
+                            "label": "Raw HTML"
+                        },
+                        "attachments": {
+                            "mode": "chose"
+                        },
+                        "emailHeaders": {
+                            "mode": "chose"
+                        }
+                    },
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "data": {
+                                "scoped": "true",
+                                "connection": "google-email"
+                            },
+                            "label": "My Gmail connection (help@getmovingmuscle.com)"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:google-email",
+                        "label": "Connection",
+                        "required": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "to",
+                        "spec": {
+                            "name": "value",
+                            "type": "email",
+                            "label": "Recipient email address",
+                            "required": true,
+                            "validate": true
+                        },
+                        "type": "array",
+                        "label": "To",
+                        "required": true
+                    },
+                    {
+                        "name": "subject",
+                        "type": "text",
+                        "label": "Subject"
+                    },
+                    {
+                        "name": "bodyType",
+                        "type": "select",
+                        "label": "Body type",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "rawHtml",
+                                "collection"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "attachments",
+                        "spec": {
+                            "name": "value",
+                            "spec": [
+                                {
+                                    "name": "filename",
+                                    "type": "filename",
+                                    "label": "File name",
+                                    "required": true,
+                                    "semantic": "file:name"
+                                },
+                                {
+                                    "name": "data",
+                                    "type": "buffer",
+                                    "label": "Data",
+                                    "required": true,
+                                    "semantic": "file:data"
+                                }
+                            ],
+                            "type": "collection",
+                            "label": "Attachment"
+                        },
+                        "type": "array",
+                        "label": "Attachments"
+                    },
+                    {
+                        "name": "from",
+                        "type": "select",
+                        "label": "From"
+                    },
+                    {
+                        "name": "cc",
+                        "spec": {
+                            "name": "value",
+                            "type": "email",
+                            "label": "Recipient email address",
+                            "required": true
+                        },
+                        "type": "array",
+                        "label": "CC recipients"
+                    },
+                    {
+                        "name": "bcc",
+                        "spec": {
+                            "name": "value",
+                            "type": "email",
+                            "label": "Recipient email address",
+                            "required": true
+                        },
+                        "type": "array",
+                        "label": "BCC recipients"
+                    },
+                    {
+                        "name": "emailHeaders",
+                        "spec": {
+                            "name": "value",
+                            "spec": [
+                                {
+                                    "name": "key",
+                                    "type": "text",
+                                    "label": "Key",
+                                    "required": true
+                                },
+                                {
+                                    "name": "value",
+                                    "type": "text",
+                                    "label": "Value"
+                                }
+                            ],
+                            "type": "collection",
+                            "label": "Email header"
+                        },
+                        "type": "array",
+                        "label": "Additional email headers"
+                    },
+                    {
+                        "name": "content",
+                        "type": "text",
+                        "label": "Content"
+                    }
+                ]
+            }
+        }
+    ],
+    "metadata": {
+        "instant": true,
+        "version": 1,
+        "scenario": {
+            "roundtrips": 1,
+            "maxErrors": 3,
+            "autoCommit": true,
+            "autoCommitTriggerLast": true,
+            "sequential": false,
+            "slots": null,
+            "confidential": false,
+            "dataloss": false,
+            "dlq": false,
+            "freshVariables": false
+        },
+        "designer": {
+            "orphans": []
+        },
+        "zone": "us2.make.com",
+        "notes": []
+    }
+}
