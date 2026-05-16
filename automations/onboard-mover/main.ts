@@ -329,11 +329,22 @@ async function onboard(payload: Payload): Promise<OnboardResult> {
   // Enrol in course
   const enrolResult = await enrol(coassembleId, COA_COURSE);
 
-  // Notifications in parallel
-  const [emailRes, smsRes] = await Promise.all([
+  // Notifications in parallel — use allSettled so one provider failing
+  // (e.g. Resend in test mode) doesn't sink the SMS or the response.
+  const [emailSettled, smsSettled] = await Promise.allSettled([
     sendEmail(payload.email, "Welcome to Moving Muscle — Get started", emailTemplate(firstname)),
     sendSMS(phone, smsTemplate(firstname)),
   ]);
+  const emailRes =
+    emailSettled.status === "fulfilled"
+      ? emailSettled.value
+      : (console.error("[email] failed:", emailSettled.reason),
+        { id: null, dryRun: false, error: String(emailSettled.reason).slice(0, 200) });
+  const smsRes =
+    smsSettled.status === "fulfilled"
+      ? smsSettled.value
+      : (console.error("[sms] failed:", smsSettled.reason),
+        { sid: null, dryRun: false, error: String(smsSettled.reason).slice(0, 200) });
 
   return {
     mover_id: moverId,
