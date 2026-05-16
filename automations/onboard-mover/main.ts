@@ -164,12 +164,16 @@ async function sendSMS(to: string, body: string) {
 // Email (Resend) — dry-run if RESEND_API_KEY unset
 // ────────────────────────────────────────────────────────────────
 
-async function sendEmail(to: string, subject: string, text: string) {
+async function sendEmail(
+  to: string,
+  subject: string,
+  body: { text: string; html: string },
+) {
   if (!RESEND_KEY) {
     console.log("[email] DRY-RUN — RESEND_API_KEY not set");
     console.log(`[email]   to: ${to}`);
     console.log(`[email]   subject: ${subject}`);
-    console.log(`[email]   body:\n${text}`);
+    console.log(`[email]   text:\n${body.text}`);
     return { id: null, dryRun: true };
   }
   const r = await fetch("https://api.resend.com/emails", {
@@ -178,7 +182,13 @@ async function sendEmail(to: string, subject: string, text: string) {
       Authorization: `Bearer ${RESEND_KEY}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ from: EMAIL_FROM, to, subject, text }),
+    body: JSON.stringify({
+      from: EMAIL_FROM,
+      to,
+      subject,
+      text: body.text,
+      html: body.html,
+    }),
   });
   if (!r.ok) throw new Error(`resend ${r.status}: ${await r.text()}`);
   const data = await r.json();
@@ -189,19 +199,26 @@ async function sendEmail(to: string, subject: string, text: string) {
 // Templates
 // ────────────────────────────────────────────────────────────────
 
-const emailTemplate = (firstName: string) =>
-  `Hey ${firstName},
-
-You should have access to the Gig-Mover Foundations Course. Use this link: https://learn.movingmuscle.co/#/courses
-
-1) Login using your email used to apply.
-2) Complete the full onboarding (2-3 hours).
-3) Send your first SMS introducing yourself to the Mover Hotline.
-
-Save this contact — Mover Hotline: (980) 202-3698`;
+const emailTemplate = (firstName: string) => {
+  const text =
+    `Hey ${firstName},\n\n` +
+    `You should have access to the Gig-Mover Foundations Course. Use this link: https://learn.movingmuscle.co/#/courses\n\n` +
+    `1) Login using your email used to apply.\n` +
+    `2) Complete the full onboarding (2-3 hours).\n` +
+    `3) Send your first SMS introducing yourself to the Mover Hotline.\n\n` +
+    `Save this contact — Mover Hotline: (980) 202-3698`;
+  const html = text
+    .split("\n")
+    .map((l) => (l.length ? `<p style="margin:0 0 12px 0;">${l}</p>` : `<p style="margin:0 0 12px 0;">&nbsp;</p>`))
+    .join("");
+  return { text, html };
+};
 
 const smsTemplate = (firstName: string) =>
-  `Hey ${firstName}! You have now just received access to the Gig-Mover Foundations Onboarding which walks you through everything step by step. Access the Onboarding with this link: https://learn.movingmuscle.co/#/courses. The entire process takes roughly 2-3 hours to complete. Take your time!`;
+  `Hey ${firstName}!\n\n` +
+  `You have just received access to the Gig-Mover Foundations Onboarding — it walks you through everything step by step.\n\n` +
+  `Access here: https://learn.movingmuscle.co/#/courses\n\n` +
+  `The process takes roughly 2-3 hours. Take your time!`;
 
 // ────────────────────────────────────────────────────────────────
 // Handler
